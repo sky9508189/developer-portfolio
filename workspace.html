@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Developer Workspace</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:#06060e;color:#e8e8f0;font-family:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+#scene{position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:0}
+.overlay{position:relative;z-index:1;min-height:400vh}
+section{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:0 8vw;pointer-events:none}
+.hero{min-height:70vh}
+.hero h1{font-size:clamp(32px,5vw,64px);font-weight:700;line-height:1.05;letter-spacing:-1.5px;margin-bottom:12px}
+.hero .g{background:linear-gradient(135deg,#00e676,#00bcd4,#7c4dff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{font-size:clamp(13px,1.4vw,18px);color:rgba(255,255,255,.4);line-height:1.6;max-width:460px}
+.scroll-hint{position:absolute;bottom:30px;left:8vw;display:flex;align-items:center;gap:10px;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.12)}
+.scroll-hint .l{width:30px;height:1px;background:rgba(255,255,255,.08)}
+.overlay-text{max-width:600px}.overlay-text h2{font-size:clamp(22px,3vw,36px);font-weight:600;margin-bottom:12px}.overlay-text p{font-size:15px;color:rgba(255,255,255,.45);line-height:1.7}
+@media(max-width:768px){section{padding:0 5vw}.hero{min-height:50vh}}
+</style>
+</head>
+<body>
+<div id="scene"></div>
+<div class="overlay">
+  <section class="hero">
+    <h1>Developer<br><span class="g">Workspace</span></h1>
+    <p>A 3D interactive environment. Type anywhere on the page to see the developer code in real-time.</p>
+    <div class="scroll-hint"><span class="l"></span> SCROLL TO EXPLORE</div>
+  </section>
+  <section><div class="overlay-text"><h2>Premium Setup</h2><p>Dual monitors, mechanical keyboard, ergonomic design — built for peak productivity.</p></div></section>
+  <section><div class="overlay-text"><h2>Real-Time Sync</h2><p>Every keystroke triggers real-time code animation on the monitors and keyboard feedback.</p></div></section>
+  <section><div class="overlay-text"><h2>Cinematic Experience</h2><p>Smooth camera orbits and parallax depth as you scroll through the workspace.</p></div></section>
+</div>
+
+<script type="importmap">{
+  "imports":{
+    "three":"https://cdn.jsdelivr.net/npm/three@0.163.0/build/three.module.js",
+    "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.163.0/examples/jsm/"
+  }
+}</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+
+// ─── SCENE ─────────────────────────────────────────────────────────
+const container=document.getElementById('scene');
+const scene=new THREE.Scene();
+scene.background=new THREE.Color(0x06060e);
+scene.fog=new THREE.FogExp2(0x06060e,0.01);
+const camera=new THREE.PerspectiveCamera(25,container.clientWidth/container.clientHeight,0.1,40);
+camera.position.set(6,4,9);camera.lookAt(0,-0.5,0);
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});
+renderer.setSize(container.clientWidth,container.clientHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.toneMapping=THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure=1.1;
+renderer.shadowMap.enabled=true;
+renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+renderer.outputColorSpace=THREE.SRGBColorSpace;
+container.appendChild(renderer.domElement);
+const composer=new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene,camera));
+const bloom=new UnrealBloomPass(new THREE.Vector2(container.clientWidth,container.clientHeight),0.06,0.2,0.02);
+composer.addPass(bloom);
+
+// ─── MATERIALS ─────────────────────────────────────────────────────
+const mat={};
+mat.desk=new THREE.MeshStandardMaterial({color:0x0a0a12,roughness:0.15,metalness:0.8});
+mat.deskTop=new THREE.MeshStandardMaterial({color:0x111122,roughness:0.05,metalness:0.2,transparent:true,opacity:0.15});
+mat.chrome=new THREE.MeshStandardMaterial({color:0x8888aa,roughness:0.1,metalness:0.9});
+mat.plastic=new THREE.MeshStandardMaterial({color:0x1a1a24,roughness:0.4,metalness:0.1});
+mat.darkPlastic=new THREE.MeshStandardMaterial({color:0x0d0d14,roughness:0.5,metalness:0.05});
+mat.skin=new THREE.MeshStandardMaterial({color:0xd4a574,roughness:0.6,metalness:0});
+mat.hoodie=new THREE.MeshStandardMaterial({color:0x1a1a2e,roughness:0.7,metalness:0.02});
+mat.hoodieIn=new THREE.MeshStandardMaterial({color:0x222244,roughness:0.6,metalness:0});
+mat.pants=new THREE.MeshStandardMaterial({color:0x111122,roughness:0.6,metalness:0});
+mat.shoe=new THREE.MeshStandardMaterial({color:0x0a0a14,roughness:0.8,metalness:0});
+mat.beanie=new THREE.MeshStandardMaterial({color:0x222233,roughness:0.7,metalness:0});
+mat.monitorFrame=new THREE.MeshStandardMaterial({color:0x0d0d14,roughness:0.3,metalness:0.6});
+mat.monitorGlow=new THREE.MeshStandardMaterial({color:0x00e676,emissive:0x00e676,emissiveIntensity:0.3,transparent:true,opacity:0.15});
+mat.screen=new THREE.MeshStandardMaterial({color:0x080818,roughness:0.1,metalness:0.3,emissive:0x080818,emissiveIntensity:0.1});
+mat.keycap=new THREE.MeshStandardMaterial({color:0x1a1a24,roughness:0.4,metalness:0.05});
+mat.keycapAccent=new THREE.MeshStandardMaterial({color:0x222233,roughness:0.35,metalness:0.1});
+mat.keySwitch=new THREE.MeshStandardMaterial({color:0x111118,roughness:0.3,metalness:0.4});
+mat.coffee=new THREE.MeshStandardMaterial({color:0x1a1a24,roughness:0.3,metalness:0.4});
+mat.coffeeLid=new THREE.MeshStandardMaterial({color:0x222233,roughness:0.5,metalness:0.1});
+mat.lampBody=new THREE.MeshStandardMaterial({color:0x333344,roughness:0.2,metalness:0.7});
+mat.lampShade=new THREE.MeshStandardMaterial({color:0xffeedd,roughness:0.8,metalness:0,emissive:0xff8833,emissiveIntensity:0.15});
+mat.mouseBody=new THREE.MeshStandardMaterial({color:0x1a1a24,roughness:0.3,metalness:0.05});
+mat.floor=new THREE.MeshStandardMaterial({color:0x06060e,roughness:0.5,metalness:0.4,transparent:true,opacity:0.6});
+
+// ─── LIGHTS ────────────────────────────────────────────────────────
+scene.add(new THREE.AmbientLight(0x222244,0.15));
+const keyL=new THREE.DirectionalLight(0xffeedd,1.8);keyL.position.set(8,12,3);keyL.castShadow=true;keyL.shadow.mapSize.set(1024,1024);scene.add(keyL);
+const fillL=new THREE.DirectionalLight(0x4488ff,0.3);fillL.position.set(-6,4,-5);scene.add(fillL);
+const rimL=new THREE.DirectionalLight(0x88ddff,0.5);rimL.position.set(-3,2,-10);scene.add(rimL);
+scene.add(new THREE.HemisphereLight(0x4466ff,0x001122,0.25));
+const monitorGlowLight=new THREE.PointLight(0x00e676,0.3,3);monitorGlowLight.position.set(0,1.2,0.8);scene.add(monitorGlowLight);
+const lampLight=new THREE.PointLight(0xff8833,0.2,4);lampLight.position.set(-2.5,1.8,1);scene.add(lampLight);
+
+// ─── FLOOR ──────────────────────────────────────────────────────────
+const floor=new THREE.Mesh(new THREE.PlaneGeometry(30,30),mat.floor);
+floor.rotation.x=-Math.PI/2;floor.position.y=-0.5;floor.receiveShadow=true;scene.add(floor);
+
+// ─── DESK ──────────────────────────────────────────────────────────
+const desk=new THREE.Group();
+// Legs
+const legGeo=new THREE.CylinderGeometry(0.04,0.04,1.1,8);
+[[-2.2,-1.6],[2.2,-1.6],[-2.2,1.2],[2.2,1.2]].forEach(([x,z])=>{
+  const leg=new THREE.Mesh(legGeo,mat.chrome);leg.position.set(x,-0.55,z);leg.castShadow=true;desk.add(leg);
+});
+// Underframe
+const frame=new THREE.Mesh(new THREE.BoxGeometry(5,0.04,3.2),mat.darkPlastic);
+frame.position.y=-0.02;desk.add(frame);
+// Glass top
+const topGeo=new THREE.BoxGeometry(4.8,0.03,3);
+const topMesh=new THREE.Mesh(topGeo,mat.deskTop);
+topMesh.position.y=0.015;topMesh.receiveShadow=true;topMesh.castShadow=true;desk.add(topMesh);
+// Desk edge glow
+const edgeMat=new THREE.MeshBasicMaterial({color:0x00e676,transparent:true,opacity:0.03});
+const edge=new THREE.Mesh(new THREE.BoxGeometry(4.82,0.005,3.02),edgeMat);
+edge.position.y=0.03;desk.add(edge);
+desk.position.y=0.5;scene.add(desk);
+
+// ─── CHAIR ─────────────────────────────────────────────────────────
+const chair=new THREE.Group();
+// Base
+const cBase=new THREE.Mesh(new THREE.CylinderGeometry(0.6,0.7,0.06,12),mat.darkPlastic);
+cBase.position.y=0.03;chair.add(cBase);
+// Wheels
+const wheelGeo=new THREE.TorusGeometry(0.06,0.025,6,10);
+for(let i=0;i<5;i++){const a=(i/5)*Math.PI*2;const w=new THREE.Mesh(wheelGeo,mat.chrome);
+  w.position.set(Math.sin(a)*0.55,0.01,Math.cos(a)*0.55);w.rotation.x=Math.PI/2;chair.add(w);
+  const arm=new THREE.Mesh(new THREE.CylinderGeometry(0.008,0.008,0.1,6),mat.chrome);
+  arm.position.set(Math.sin(a)*0.35,0.08,Math.cos(a)*0.35);chair.add(arm);
+}
+// Pole
+const pole=new THREE.Mesh(new THREE.CylinderGeometry(0.04,0.05,0.4,10),mat.chrome);
+pole.position.y=0.23;chair.add(pole);
+// Seat
+const seat=new THREE.Mesh(new THREE.BoxGeometry(0.8,0.08,0.8),new THREE.MeshStandardMaterial({color:0x0a0a12,roughness:0.6,metalness:0.1}));
+seat.position.y=0.5;seat.castShadow=true;chair.add(seat);
+// Seat cushion
+const cushion=new THREE.Mesh(new THREE.BoxGeometry(0.7,0.04,0.7),new THREE.MeshStandardMaterial({color:0x111122,roughness:0.8,metalness:0}));
+cushion.position.y=0.54;chair.add(cushion);
+// Backrest
+const back=new THREE.Mesh(new THREE.BoxGeometry(0.7,0.6,0.04),new THREE.MeshStandardMaterial({color:0x0a0a12,roughness:0.6,metalness:0.1}));
+back.position.set(0,0.8,-0.38);chair.add(back);
+const backCushion=new THREE.Mesh(new THREE.BoxGeometry(0.6,0.5,0.03),new THREE.MeshStandardMaterial({color:0x111122,roughness:0.8,metalness:0}));
+backCushion.position.set(0,0.8,-0.36);chair.add(backCushion);
+chair.position.set(-0.3,-0.5,-1.8);chair.rotation.y=0.1;scene.add(chair);
+
+// ─── CHARACTER ─────────────────────────────────────────────────────
+const char=new THREE.Group();
+// Body / Torso (hoodie)
+const torso=new THREE.Mesh(new THREE.CylinderGeometry(0.35,0.4,0.7,12),mat.hoodie);
+torso.position.y=0.85;torso.castShadow=true;char.add(torso);
+// Hoodie inner (at neck)
+const neck=new THREE.Mesh(new THREE.CylinderGeometry(0.2,0.22,0.08,10),mat.hoodieIn);
+neck.position.y=1.2;char.add(neck);
+// Head
+const head=new THREE.Mesh(new THREE.SphereGeometry(0.22,20,20),mat.skin);
+head.position.y=1.35;head.castShadow=true;char.add(head);
+// Beanie
+const beanie=new THREE.Mesh(new THREE.CylinderGeometry(0.2,0.22,0.1,14),mat.beanie);
+beanie.position.y=1.48;char.add(beanie);
+const beanieTop=new THREE.Mesh(new THREE.SphereGeometry(0.17,10,10,0,Math.PI*2,0,Math.PI/2),mat.beanie);
+beanieTop.position.y=1.55;char.add(beanieTop);
+// Eyes
+[[-0.07,1.38,0.2],[0.07,1.38,0.2]].forEach(([x,y,z])=>{
+  const eye=new THREE.Mesh(new THREE.SphereGeometry(0.025,10,10),new THREE.MeshStandardMaterial({color:0x111122,roughness:0.1,metalness:0}));
+  eye.position.set(x,y,z);char.add(eye);
+  const pupil=new THREE.Mesh(new THREE.SphereGeometry(0.012,8,8),new THREE.MeshBasicMaterial({color:0x00e676}));
+  pupil.position.set(x,y,z+0.01);char.add(pupil);
+});
+// Headphones
+const hpMat=new THREE.MeshStandardMaterial({color:0x0a0a12,roughness:0.4,metalness:0.3});
+const hpMatPad=new THREE.MeshStandardMaterial({color:0x1a1a24,roughness:0.8,metalness:0});
+const hpBand=new THREE.Mesh(new THREE.TorusGeometry(0.12,0.015,6,20,Math.PI));
+hpBand.rotation.x=Math.PI/2;hpBand.position.set(0,1.48,0);char.add(hpBand);
+[-0.17,0.17].forEach(x=>{
+  const cup=new THREE.Mesh(new THREE.CylinderGeometry(0.07,0.09,0.06,12),hpMat);
+  cup.position.set(x,1.35,0);cup.rotation.x=0.1;char.add(cup);
+  const pad=new THREE.Mesh(new THREE.CylinderGeometry(0.05,0.07,0.02,12),hpMatPad);
+  pad.position.set(x*1.1,1.35,0);char.add(pad);
+});
+// Arms
+const upperArmMat=new THREE.MeshStandardMaterial({color:0x1a1a2e,roughness:0.7,metalness:0});
+const foreArmMat=new THREE.MeshStandardMaterial({color:0x1a1a2e,roughness:0.7,metalness:0});
+const handMat=new THREE.MeshStandardMaterial({color:0xd4a574,roughness:0.6,metalness:0});
+const leftArmGrp=new THREE.Group();
+const leftUpper=new THREE.Mesh(new THREE.CylinderGeometry(0.08,0.07,0.35,8),upperArmMat);
+leftUpper.position.set(0,0.17,0);leftArmGrp.add(leftUpper);
+const leftFore=new THREE.Mesh(new THREE.CylinderGeometry(0.07,0.06,0.3,8),foreArmMat);
+leftFore.position.set(0.05,-0.3,0.1);leftFore.rotation.z=0.3;leftArmGrp.add(leftFore);
+const lHand=new THREE.Mesh(new THREE.SphereGeometry(0.05,8,8),handMat);
+lHand.position.set(0.08,-0.48,0.15);leftArmGrp.add(lHand);
+leftArmGrp.position.set(-0.4,1.0,0.1);char.add(leftArmGrp);
+
+const rightArmGrp=new THREE.Group();
+const rightUpper=new THREE.Mesh(new THREE.CylinderGeometry(0.08,0.07,0.35,8),upperArmMat);
+rightUpper.position.set(0,0.17,0);rightArmGrp.add(rightUpper);
+const rightFore=new THREE.Mesh(new THREE.CylinderGeometry(0.07,0.06,0.3,8),foreArmMat);
+rightFore.position.set(-0.05,-0.3,0.1);rightFore.rotation.z=-0.3;rightArmGrp.add(rightFore);
+const rHand=new THREE.Mesh(new THREE.SphereGeometry(0.05,8,8),handMat);
+rHand.position.set(-0.08,-0.48,0.15);rightArmGrp.add(rHand);
+rightArmGrp.position.set(0.4,1.0,0.1);char.add(rightArmGrp);
+
+// Legs
+const legMat=new THREE.MeshStandardMaterial({color:0x111122,roughness:0.6,metalness:0});
+[[-0.15,0.4],[0.15,0.4]].forEach(([x,y])=>{
+  const leg=new THREE.Mesh(new THREE.CylinderGeometry(0.1,0.09,0.5,8),legMat);
+  leg.position.set(x,y,-0.1);char.add(leg);
+});
+// Shoes
+[[-0.15,0.08],[0.15,0.08]].forEach(([x,y])=>{
+  const shoe=new THREE.Mesh(new THREE.BoxGeometry(0.12,0.06,0.2),mat.shoe);
+  shoe.position.set(x,y,-0.15);char.add(shoe);
+});
+char.position.set(-0.3,-0.5,-1.75);char.rotation.y=0.1;scene.add(char);
+
+// ─── DUAL MONITORS ─────────────────────────────────────────────────
+function makeMonitor(x,z,rotY){
+  const grp=new THREE.Group();
+  const standGeo=new THREE.CylinderGeometry(0.04,0.06,0.4,8);
+  const stand=new THREE.Mesh(standGeo,mat.chrome);stand.position.y=0.2;grp.add(stand);
+  const base=new THREE.Mesh(new THREE.CylinderGeometry(0.12,0.14,0.02,10),mat.darkPlastic);
+  base.position.y=0.01;grp.add(base);
+  const neckMat=new THREE.MeshStandardMaterial({color:0x222233,roughness:0.3,metalness:0.6});
+  const neck=new THREE.Mesh(new THREE.BoxGeometry(0.04,0.15,0.04),neckMat);
+  neck.position.y=0.4;grp.add(neck);
+  // Screen
+  const scrW=1.3,scrH=0.75,scrD=0.04;
+  const bezel=new THREE.Mesh(new THREE.BoxGeometry(scrW,scrH,scrD),mat.monitorFrame);
+  bezel.position.y=0.85;bezel.castShadow=true;grp.add(bezel);
+  const screenMat=new THREE.MeshStandardMaterial({
+    color:0x080818,roughness:0.1,metalness:0.3,
+    emissive:0x080818,emissiveIntensity:0.05,
+  });
+  const screen=new THREE.Mesh(new THREE.PlaneGeometry(scrW-0.08,scrH-0.08),screenMat);
+  screen.position.set(0,0.85,scrD/2+0.001);grp.add(screen);
+  // Screen code canvas
+  const canvas=document.createElement('canvas');canvas.width=640;canvas.height=360;
+  const ctx=canvas.getContext('2d');
+  function drawCode(progress){
+    ctx.fillStyle='#080818';ctx.fillRect(0,0,640,360);
+    ctx.font='11px "JetBrains Mono","Fira Code","Consolas",monospace';
+    const code=[
+      'import { Portfolio } from "./components";',
+      'import { ThemeProvider } from "./theme";',
+      '',
+      'function App() {',
+      '  const [data, setData] = useState(null);',
+      '  const [loading, setLoading] = useState(true);',
+      '',
+      '  useEffect(() => {',
+      '    fetchPortfolio().then(d => {',
+      '      setData(d);',
+      '      setLoading(false);',
+      '    });',
+      '  }, []);',
+      '',
+      '  if (loading) return <Spinner />;',
+      '',
+      '  return (',
+      '    <ThemeProvider>',
+      '      <Portfolio data={data} />',
+      '    </ThemeProvider>',
+      '  );',
+      '}',
+      '',
+      'export default App;',
+    ];
+    const maxLines=code.length;
+    const visibleLines=Math.min(maxLines,Math.ceil(progress*maxLines));
+    const colors=['#c8c8d4','#00e676','#00bcd4','#ffab00','#e040fb','#ff5252','#7c4dff'];
+    code.slice(0,visibleLines).forEach((l,i)=>{
+      const y=16+i*18;if(y>350)return;
+      const parts=l.match(/(\/\/.*|".*?"|'.*?'|[A-Z]\w*|[a-z]\w*|[{}[\]();,=+\-*/<>]|\d+\.?\d*|\S)/g)||[l];let x=12;
+      parts.forEach(p=>{let c2='#7c4dff';
+        if(p.startsWith('//'))c2='#6a6a82';else if(p.startsWith('"')||p.startsWith("'"))c2='#ffab00';
+        else if(/^(if|else|return|function|const|let|var|import|export|from|class|new|async|await|useState|useEffect|useCallback)$/.test(p))c2='#00e676';
+        else if(/^[a-z]/.test(p))c2='#c8c8d4';else if(/^\d/.test(p))c2='#ff5252';
+        else if(/[{}()[\];,=+-\/<>]/.test(p))c2='#00bcd4';else if(/^[A-Z]/.test(p))c2='#e040fb';
+        ctx.fillStyle=c2;ctx.fillText(p,x,y);x+=ctx.measureText(p).width+4;
+      });
+    });
+    // Cursor
+    if(progress<1){
+      const line=Math.floor(progress*maxLines);
+      const y=16+line*18;
+      ctx.fillStyle='#00e676';
+      ctx.fillRect(12+((progress*maxLines)%1)*200,y-14,8,12);
+    }
+    screenMat.map=null;screenMat.needsUpdate=true;
+    const tex=new THREE.CanvasTexture(canvas);
+    tex.minFilter=THREE.LinearFilter;
+    screenMat.map=tex;screenMat.needsUpdate=true;
+    return canvas;
+  }
+  drawCode(0.5);
+  // Glow behind screen
+  const glow=new THREE.Mesh(new THREE.PlaneGeometry(scrW*1.2,scrH*1.2),mat.monitorGlow);
+  glow.position.set(0,0.85,-0.02);grp.add(glow);
+  // Webcam dot
+  const dot=new THREE.Mesh(new THREE.SphereGeometry(0.008,6,6),new THREE.MeshBasicMaterial({color:0x111111}));
+  dot.position.set(0,0.85+scrH/2-0.02,scrD/2+0.002);grp.add(dot);
+  grp.position.set(x,0.5,z);grp.rotation.y=rotY;
+  return {grp,drawCode,screenMat,canvas,ctx};
+}
+const monL=makeMonitor(-1.0,0.2,-0.15);
+const monR=makeMonitor(1.2,0.15,0.2);
+scene.add(monL.grp);scene.add(monR.grp);
+const monitors=[monL,monR];
+const currentMonitor=monL;
+
+// ─── KEYBOARD ─────────────────────────────────────────────────────
+const kbGroup=new THREE.Group();
+const kbBaseShape=(()=>{const s=new THREE.Shape();const w=5.5,h=1.8,r=0.05;const w2=w/2,h2=h/2;
+  s.moveTo(-w2+r,-h2);s.lineTo(w2-r,-h2);s.quadraticCurveTo(w2,-h2,w2,-h2+r);
+  s.lineTo(w2,h2-r);s.quadraticCurveTo(w2,h2,w2-r,h2);
+  s.lineTo(-w2+r,h2);s.quadraticCurveTo(-w2,h2,-w2,h2-r);
+  s.lineTo(-w2,-h2+r);s.quadraticCurveTo(-w2,-h2,-w2+r,-h2);return s;})();
+const kbBaseMesh=new THREE.Mesh(new THREE.ExtrudeGeometry(kbBaseShape,{depth:0.05,bevelEnabled:true,bevelThickness:0.01,bevelSize:0.005,bevelSegments:3}),mat.darkPlastic);
+kbBaseMesh.position.y=0.02;kbBaseMesh.receiveShadow=true;kbBaseMesh.castShadow=true;kbGroup.add(kbBaseMesh);
+const K=0.14,G=0.006,RG=0.015,KH=K*0.95,CH=0.045,SH=0.025;
+const kLayout=[
+  [{w:1,l:'`'},{w:1,l:'1'},{w:1,l:'2'},{w:1,l:'3'},{w:1,l:'4'},{w:1,l:'5'},{w:1,l:'6'},{w:1,l:'7'},{w:1,l:'8'},{w:1,l:'9'},{w:1,l:'0'},{w:1,l:'-'},{w:1,l:'='},{w:2,l:'Bksp'}],
+  [{w:1.5,l:'Tab'},{w:1,l:'Q'},{w:1,l:'W'},{w:1,l:'E'},{w:1,l:'R'},{w:1,l:'T'},{w:1,l:'Y'},{w:1,l:'U'},{w:1,l:'I'},{w:1,l:'O'},{w:1,l:'P'},{w:1,l:'['},{w:1,l:']'},{w:1.5,l:'\\'}],
+  [{w:1.75,l:'Caps'},{w:1,l:'A'},{w:1,l:'S'},{w:1,l:'D'},{w:1,l:'F'},{w:1,l:'G'},{w:1,l:'H'},{w:1,l:'J'},{w:1,l:'K'},{w:1,l:'L'},{w:1,l:';'},{w:1,l:"'"},{w:2.25,l:'Enter'}],
+  [{w:2.25,l:'Shift'},{w:1,l:'Z'},{w:1,l:'X'},{w:1,l:'C'},{w:1,l:'V'},{w:1,l:'B'},{w:1,l:'N'},{w:1,l:'M'},{w:1,l:','},{w:1,l:'.'},{w:1,l:'/'},{w:2.75,l:'Shift'}],
+  [{w:1.25,l:'Ctrl'},{w:1.25,l:'Win'},{w:1.25,l:'Alt'},{w:6.25,l:''},{w:1.25,l:'Alt'},{w:1,l:'Fn'},{w:1.25,l:'Ctrl'}],
+];
+const kbKeys=[];
+kLayout.forEach((row,ri)=>{let x=-2.6;const rz=(ri-2)*(KH+RG);
+  row.forEach(kd=>{
+    const kw=kd.w*K,xp=x+kw/2;
+    const sw=new THREE.Mesh(new THREE.BoxGeometry(kw-0.008,KH-0.008,SH),mat.keySwitch);
+    sw.position.set(xp,rz,0.05+SH/2);kbGroup.add(sw);
+    const cw=kw-0.012,ch=KH-0.012;
+    const cShape=(()=>{const s=new THREE.Shape();const w2=cw/2,h2=ch/2,r=0.005;
+      s.moveTo(-w2+r,-h2);s.lineTo(w2-r,-h2);s.quadraticCurveTo(w2,-h2,w2,-h2+r);
+      s.lineTo(w2,h2-r);s.quadraticCurveTo(w2,h2,w2-r,h2);
+      s.lineTo(-w2+r,h2);s.quadraticCurveTo(-w2,h2,-w2,h2-r);
+      s.lineTo(-w2,-h2+r);s.quadraticCurveTo(-w2,-h2,-w2+r,-h2);return s;})();
+    const cap=new THREE.Mesh(new THREE.ExtrudeGeometry(cShape,{depth:CH,bevelEnabled:true,bevelThickness:0.004,bevelSize:0.003,bevelSegments:2}),kd.l===''?mat.keycapAccent:mat.keycap);
+    const cz=0.05+SH+CH/2;cap.position.set(xp,rz,cz);cap.castShadow=true;cap.receiveShadow=true;kbGroup.add(cap);
+    sw.userData={oz:0.05+SH/2};cap.userData={oz:cz,label:kd.l};
+    kbKeys.push({mesh:cap,sw,label:kd.l,baseZ:cz,row:ri});
+    x+=kw+G;
+  });
+});
+kbGroup.position.set(0.2,0.52,0.6);kbGroup.rotation.x=0.08;scene.add(kbGroup);
+const keyMap=new Map();kbKeys.forEach(k=>{if(k.label)keyMap.set(k.label.toUpperCase(),k);keyMap.set(k.label,k)});
+
+// ─── MOUSE ─────────────────────────────────────────────────────────
+const mouseObj=new THREE.Group();
+const mBody=new THREE.Mesh(new THREE.BoxGeometry(0.2,0.05,0.12),mat.mouseBody);
+mBody.position.y=0.025;mouseObj.add(mBody);
+const mTop=new THREE.Mesh(new THREE.SphereGeometry(0.08,10,10,0,Math.PI*2,0,Math.PI/2),mat.mouseBody);
+mTop.position.y=0.065;mouseObj.add(mTop);
+mouseObj.position.set(1.6,0.52,0.3);mouseObj.rotation.x=0.15;scene.add(mouseObj);
+
+// ─── COFFEE MUG ───────────────────────────────────────────────────
+const mug=new THREE.Group();
+const mCup=new THREE.Mesh(new THREE.CylinderGeometry(0.1,0.09,0.14,12),mat.coffee);
+mCup.position.y=0.07;mCup.castShadow=true;mug.add(mCup);
+const mLid=new THREE.Mesh(new THREE.CylinderGeometry(0.09,0.095,0.015,12),mat.coffeeLid);
+mLid.position.y=0.14;mug.add(mLid);
+const mHandle=new THREE.Mesh(new THREE.TorusGeometry(0.03,0.008,6,10),mat.chrome);
+mHandle.position.set(0.1,0.08,0);mug.add(mHandle);
+mug.position.set(-1.8,0.52,-1.1);scene.add(mug);
+
+// ─── DESK LAMP ────────────────────────────────────────────────────
+const lamp=new THREE.Group();
+const lBase=new THREE.Mesh(new THREE.CylinderGeometry(0.12,0.14,0.02,12),mat.lampBody);
+lBase.position.y=0.01;lamp.add(lBase);
+const lPole=new THREE.Mesh(new THREE.CylinderGeometry(0.015,0.02,0.4,8),mat.lampBody);
+lPole.position.y=0.22;lamp.add(lPole);
+const lArm=new THREE.Mesh(new THREE.BoxGeometry(0.3,0.015,0.015),mat.lampBody);
+lArm.position.set(0.15,0.42,0);lamp.add(lArm);
+const lShade=new THREE.Mesh(new THREE.ConeGeometry(0.12,0.08,12),mat.lampShade);
+lShade.position.set(0.3,0.42,0);lamp.add(lShade);
+lamp.position.set(-2.2,0.52,1.2);scene.add(lamp);
+const lampGlow=new THREE.Mesh(new THREE.SphereGeometry(0.04,8,8),new THREE.MeshBasicMaterial({color:0xff8833,transparent:true,opacity:0.3}));
+lampGlow.position.set(-2.2,0.48,1.2);scene.add(lampGlow);
+
+// ─── FLOATING HOLOGRAPHIC PANELS ──────────────────────────────────
+const holos=[];
+function makeHolo(w,h,x,y,z,rotY,lines){
+  const g=new THREE.Group();
+  const fMat=new THREE.MeshBasicMaterial({color:0x00e676,transparent:true,opacity:0.03,side:THREE.DoubleSide});
+  const frame=new THREE.Mesh(new THREE.PlaneGeometry(w,h),fMat);g.add(frame);
+  const borderMat=new THREE.MeshBasicMaterial({color:0x00e676,transparent:true,opacity:0.08});
+  const border=new THREE.Mesh(new THREE.EdgesGeometry(new THREE.BoxGeometry(w,h,0.001)),borderMat);
+  g.add(border);
+  lines.forEach((l,i)=>{
+    const lm=new THREE.Mesh(new THREE.PlaneGeometry(w*0.8,0.02),new THREE.MeshBasicMaterial({color:0x00e676,transparent:true,opacity:0.05+Math.random()*0.04}));
+    lm.position.set(0,h/2-0.04-i*0.06,0.002);g.add(lm);
+  });
+  g.position.set(x,y,z);g.rotation.y=rotY;
+  g.userData={floatAmp:0.02+Math.random()*0.02,floatSpeed:0.3+Math.random()*0.2};
+  scene.add(g);holos.push(g);return g;
+}
+makeHolo(0.8,0.5,-2.2,1.5,-1.2,0.4,['const { data } = useQuery();','return <Portfolio />;']);
+makeHolo(0.6,0.4,2.5,1.2,-1.5,-0.3,['git push origin main','deploy --prod']);
+makeHolo(0.5,0.3,-1.8,1.8,1.8,0.2,['npm run build','100% complete']);
+
+// ─── PARTICLES ────────────────────────────────────────────────────
+const pCount=600;const pGeo=new THREE.BufferGeometry();
+const pPos=new Float32Array(pCount*3);for(let i=0;i<pCount;i++){pPos[i*3]=(Math.random()-.5)*16;pPos[i*3+1]=(Math.random()-.5)*8;pPos[i*3+2]=(Math.random()-.5)*12-4}
+pGeo.setAttribute('position',new THREE.BufferAttribute(pPos,3));
+const pMat=new THREE.PointsMaterial({color:0x4466aa,size:0.012,transparent:true,opacity:0.12,blending:THREE.AdditiveBlending,depthWrite:false,sizeAttenuation:true});
+const particles=new THREE.Points(pGeo,pMat);scene.add(particles);
+
+// ─── SCROLL CAMERA ─────────────────────────────────────────────────
+ScrollTrigger.create({trigger:'.overlay',start:'top top',end:'bottom bottom',onUpdate:self=>{
+  const p=self.progress;
+  const tx=6-p*3.5,ty=4-p*1.5,tz=9-p*3;
+  camera.position.lerp(new THREE.Vector3(tx,ty,tz),0.04);
+  camera.lookAt(0,-0.3+p*0.5,0);
+}});
+
+// ─── TYPING STATE ──────────────────────────────────────────────────
+let codeProgress=0;
+let lastKeyTime=0;
+function pressRandomKey(){
+  const keys=kbKeys.filter(k=>k.label&&k.label.length===1);
+  const k=keys[Math.floor(Math.random()*keys.length)];
+  if(!k)return;
+  gsap.to(k.mesh.position,{z:k.baseZ-0.025,duration:0.03,ease:'power2.in',yoyo:true,repeat:1});
+  gsap.to(k.sw.position,{z:k.sw.userData.oz-0.015,duration:0.03,ease:'power2.in',yoyo:true,repeat:1});
+  // Ripple
+  const idx=kbKeys.indexOf(k);
+  for(let ri=-2;ri<=2;ri++){const ni=idx+ri;if(ni!==idx&&ni>=0&&ni<kbKeys.length){
+    gsap.to(kbKeys[ni].mesh.position,{z:kbKeys[ni].baseZ-0.008,duration:0.02,delay:Math.abs(ri)*0.015,ease:'power2.in',yoyo:true,repeat:1});
+  }}
+  // Arms type
+  gsap.to(leftFore.position,{x:0.08,z:0.2,duration:0.04,yoyo:true,repeat:1});
+  gsap.to(rightFore.position,{x:-0.08,z:0.2,duration:0.04,yoyo:true,repeat:1});
+  // Code progress
+  codeProgress=(codeProgress+0.02)%1;
+  const mon=monitors[Math.floor(Math.random()*monitors.length)];
+  mon.drawCode(codeProgress);
+  mon.screenMat.emissiveIntensity=0.05+codeProgress*0.1;
+  mon.grp.children.forEach(c=>{if(c.isMesh&&c.material===mat.monitorGlow){c.material.opacity=0.1+codeProgress*0.1;}});
+}
+let typingInterval=null;
+function startTyping(){if(!typingInterval){typingInterval=setInterval(pressRandomKey,120+Math.random()*80);pressRandomKey();}}
+function stopTyping(){clearInterval(typingInterval);typingInterval=null;}
+
+// ─── USER INPUT TYPING SYNC ───────────────────────────────────────
+document.addEventListener('keydown',(e)=>{
+  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')startTyping();
+});
+document.addEventListener('keyup',(e)=>{
+  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'){
+    setTimeout(()=>{if(!document.activeElement||document.activeElement.tagName!=='INPUT'&&document.activeElement.tagName!=='TEXTAREA')stopTyping()},2000);
+  }
+});
+document.addEventListener('focusin',(e)=>{if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')startTyping()});
+document.addEventListener('focusout',(e)=>{if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')stopTyping()});
+
+// ─── MOUSE ─────────────────────────────────────────────────────────
+let mx=0,my=0,tmx=0,tmy=0;
+const mouseLight2=new THREE.PointLight(0x00e676,0.15,5);
+mouseLight2.position.set(0,2,1);scene.add(mouseLight2);
+document.addEventListener('mousemove',e=>{tmx=(e.clientX/innerWidth)*2-1;tmy=-(e.clientY/innerHeight)*2+1});
+
+// ─── RESIZE ────────────────────────────────────────────────────────
+window.addEventListener('resize',()=>{const w=container.clientWidth,h=container.clientHeight;
+  camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h);composer.setSize(w,h);
+});
+
+// ─── ANIMATION ─────────────────────────────────────────────────────
+const clock=new THREE.Clock();
+function animate(){
+  requestAnimationFrame(animate);
+  const t=clock.getElapsedTime();
+  mx+=(tmx-mx)*0.03;my+=(tmy-my)*0.03;
+
+  // Camera idle sway
+  camera.position.x+=((5.5-particles.rotation.y*0.3)-camera.position.x)*0.002;
+  camera.lookAt(0,-0.3,0);
+
+  // Character idle animation
+  head.position.y=1.35+Math.sin(t*0.3)*0.003;
+  head.rotation.x=Math.sin(t*0.5)*0.005+mx*0.01;
+  head.rotation.y=my*0.02;
+  // Blink
+  if(Math.sin(t*3)>0.95){
+    const eyeMat=char.children.filter(c=>c.isMesh&&c.material.color&&c.material.color.getHex()===0x111122);
+    eyeMat.forEach(e=>e.scale.y=0.1);
+  }else{
+    char.children.forEach(c=>{if(c.isMesh&&c.material.color&&c.material.color.getHex()===0x111122)c.scale.y=1;});
+  }
+  // Posture adjust
+  torso.rotation.x=Math.sin(t*0.2)*0.005;
+
+  // Holographic panels float
+  holos.forEach(h=>{h.position.y+=Math.sin(t*h.userData.floatSpeed)*0.001;h.rotation.z=Math.sin(t*h.userData.floatSpeed*0.5)*0.005;});
+
+  // Particles drift
+  const pa=particles.geometry.attributes.position.array;
+  for(let i=0;i<pCount;i++){pa[i*3+1]+=Math.sin(t*0.12+i)*0.00015;pa[i*3]+=Math.cos(t*0.1+i*0.1)*0.00012;if(pa[i*3+1]>4)pa[i*3+1]=-4;if(pa[i*3]>8)pa[i*3]=-8;if(pa[i*3]<-8)pa[i*3]=8;}
+  particles.geometry.attributes.position.needsUpdate=true;
+  particles.rotation.y+=0.0005;
+
+  // Mouse Light
+  mouseLight2.position.set(tmx*3,2+tmy,1);
+
+  // Auto-type on timer (for ambient effect when no user typing)
+  if(!typingInterval&&Math.sin(t*0.5)>0.97)pressRandomKey();
+
+  composer.render();
+}
+animate();
+
+// Start ambient typing
+setTimeout(startTyping,1500);
+
+console.log('✦ Workspace ready — type in any field to sync');
+</script>
+</body>
+</html>
