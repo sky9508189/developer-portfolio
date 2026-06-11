@@ -3,154 +3,105 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Portfolio Builder</title>
+  <title>portfolio.build</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div id="app">
-    <header id="app-header">
-      <div class="header-left">
-        <span class="logo">✦ Portfolio Builder</span>
+    <aside id="sidebar">
+      <div class="sidebar-header">
+        <span class="logo">portfolio.build</span>
+        <span class="logo-cursor">_</span>
       </div>
-      <div class="header-center">
-        <button class="tab-btn active" data-tab="editor">Editor</button>
-        <button class="tab-btn" data-tab="preview">Preview</button>
+      <nav class="sidebar-nav">
+        <a class="nav-item active" data-section="editor"><span class="nav-icon">></span> editor</a>
+        <a class="nav-item" data-section="preview"><span class="nav-icon">></span> preview</a>
+      </nav>
+      <div class="sidebar-footer">
+        <button id="exportBtn" class="cmd-btn">$ export --html</button>
+        <button id="resetBtn" class="cmd-btn cmd-muted">$ reset</button>
       </div>
-      <div class="header-right">
-        <button id="exportBtn" class="btn btn-gold">Export Code</button>
-        <button id="resetBtn" class="btn btn-outline">Reset</button>
+    </aside>
+
+    <main id="main">
+      <div id="editor-section" class="section active">
+        <div class="editor-scroll" id="editorScroll">
+
+          <div class="editor-card" style="--d:0">
+            <div class="card-label">// theme config</div>
+            <div class="theme-rows" id="themeGrid">
+              <div class="theme-opt active" data-theme="developer"><span class="t-preview t-dev"></span> developer</div>
+              <div class="theme-opt" data-theme="dark"><span class="t-preview t-dark"></span> dark</div>
+              <div class="theme-opt" data-theme="gradient"><span class="t-preview t-grad"></span> gradient</div>
+              <div class="theme-opt" data-theme="minimal"><span class="t-preview t-min"></span> minimal</div>
+              <div class="theme-opt" data-theme="classic"><span class="t-preview t-cls"></span> classic</div>
+            </div>
+          </div>
+
+          <div class="editor-card" style="--d:1">
+            <div class="card-label">// personal</div>
+            <div class="field-row">
+              <div class="field"><label>name</label><input id="f-name" value="Alex Johnson" class="inp"></div>
+              <div class="field"><label>title</label><input id="f-title" value="Full-Stack Developer" class="inp"></div>
+            </div>
+            <div class="field-row">
+              <div class="field"><label>email</label><input id="f-email" value="alex@dev.com" class="inp"></div>
+              <div class="field"><label>location</label><input id="f-location" value="SF, CA" class="inp"></div>
+            </div>
+            <div class="field-row">
+              <div class="field"><label>github</label><input id="f-github" value="https://github.com/alexj" class="inp"></div>
+              <div class="field"><label>linkedin</label><input id="f-linkedin" value="https://linkedin.com/in/alexj" class="inp"></div>
+            </div>
+            <div class="field"><label>photo url</label><input id="f-photo" class="inp" placeholder="https://..."></div>
+            <div class="field"><label>bio</label><textarea id="f-bio" rows="2" class="inp">Passionate full-stack developer building modern web apps with clean code.</textarea></div>
+          </div>
+
+          <div class="editor-card" style="--d:2">
+            <div class="card-label">// skills</div>
+            <div class="tag-bank" id="skillList"></div>
+            <div class="tag-add-row">
+              <input id="skillInput" class="inp" placeholder="$ add skill">
+              <button id="addSkillBtn" class="mini-btn">+</button>
+            </div>
+          </div>
+
+          <div class="editor-card" style="--d:3">
+            <div class="card-label">// projects <button id="addProjectBtn" class="mini-btn mini-add">+ add</button></div>
+            <div id="projectsList"></div>
+          </div>
+
+          <div class="editor-card" style="--d:4">
+            <div class="card-label">// experience <button id="addExperienceBtn" class="mini-btn mini-add">+ add</button></div>
+            <div id="experienceList"></div>
+          </div>
+
+          <div class="editor-card" style="--d:5">
+            <div class="card-label">// education <button id="addEducationBtn" class="mini-btn mini-add">+ add</button></div>
+            <div id="educationList"></div>
+          </div>
+
+        </div>
       </div>
-    </header>
 
-    <div id="main-content">
-      <!-- ========== EDITOR PANEL ========== -->
-      <div id="editor-panel" class="panel active">
-        <div class="editor-inner">
-          <div class="editor-scroll">
-
-            <!-- Theme -->
-            <section class="form-section">
-              <h3>Theme</h3>
-              <div class="theme-grid" id="themeGrid">
-                <div class="theme-card active" data-theme="classic">
-                  <div class="theme-preview theme-preview-classic"></div>
-                  <span>Classic</span>
-                </div>
-                <div class="theme-card" data-theme="dark">
-                  <div class="theme-preview theme-preview-dark"></div>
-                  <span>Dark</span>
-                </div>
-                <div class="theme-card" data-theme="gradient">
-                  <div class="theme-preview theme-preview-gradient"></div>
-                  <span>Gradient</span>
-                </div>
-                <div class="theme-card" data-theme="minimal">
-                  <div class="theme-preview theme-preview-minimal"></div>
-                  <span>Minimal</span>
-                </div>
-              </div>
-            </section>
-
-            <!-- Personal -->
-            <section class="form-section">
-              <h3>Personal Info</h3>
-              <div class="form-grid">
-                <div class="field">
-                  <label>Full Name</label>
-                  <input type="text" id="field-name" value="Alex Johnson" placeholder="Jane Doe">
-                </div>
-                <div class="field">
-                  <label>Job Title</label>
-                  <input type="text" id="field-title" value="Full-Stack Developer" placeholder="Software Engineer">
-                </div>
-                <div class="field">
-                  <label>Email</label>
-                  <input type="email" id="field-email" value="alex@example.com" placeholder="hello@example.com">
-                </div>
-                <div class="field">
-                  <label>Location</label>
-                  <input type="text" id="field-location" value="San Francisco, CA" placeholder="New York, USA">
-                </div>
-                <div class="field">
-                  <label>GitHub URL</label>
-                  <input type="url" id="field-github" value="https://github.com/alexj" placeholder="https://github.com/username">
-                </div>
-                <div class="field">
-                  <label>LinkedIn URL</label>
-                  <input type="url" id="field-linkedin" value="https://linkedin.com/in/alexj" placeholder="https://linkedin.com/in/username">
-                </div>
-              </div>
-              <div class="field">
-                <label>Profile Photo URL</label>
-                <input type="url" id="field-photo" placeholder="https://example.com/photo.jpg">
-              </div>
-              <div class="field">
-                <label>Bio</label>
-                <textarea id="field-bio" rows="3" placeholder="Write a short bio...">Passionate full-stack developer with 5+ years building modern web applications. Love open source and clean code.</textarea>
-              </div>
-            </section>
-
-            <!-- Skills -->
-            <section class="form-section">
-              <h3>Skills</h3>
-              <div class="tag-input">
-                <div class="tag-list" id="skillList">
-                  <div class="tag" data-value="JavaScript">JavaScript <span class="tag-remove">&times;</span></div>
-                  <div class="tag" data-value="React">React <span class="tag-remove">&times;</span></div>
-                  <div class="tag" data-value="Node.js">Node.js <span class="tag-remove">&times;</span></div>
-                  <div class="tag" data-value="Python">Python <span class="tag-remove">&times;</span></div>
-                  <div class="tag" data-value="TypeScript">TypeScript <span class="tag-remove">&times;</span></div>
-                </div>
-                <div class="tag-input-row">
-                  <input type="text" id="skillInput" placeholder="Add a skill..." class="tag-field">
-                  <button id="addSkillBtn" class="btn btn-sm">Add</button>
-                </div>
-              </div>
-            </section>
-
-            <!-- Projects -->
-            <section class="form-section">
-              <h3>Projects</h3>
-              <div id="projectsList"></div>
-              <button id="addProjectBtn" class="btn btn-sm btn-outline">+ Add Project</button>
-            </section>
-
-            <!-- Experience -->
-            <section class="form-section">
-              <h3>Experience</h3>
-              <div id="experienceList"></div>
-              <button id="addExperienceBtn" class="btn btn-sm btn-outline">+ Add Experience</button>
-            </section>
-
-            <!-- Education -->
-            <section class="form-section">
-              <h3>Education</h3>
-              <div id="educationList"></div>
-              <button id="addEducationBtn" class="btn btn-sm btn-outline">+ Add Education</button>
-            </section>
-
+      <div id="preview-section" class="section">
+        <div class="preview-wrap" id="previewWrap">
+          <div class="preview-frame-wrap">
+            <div class="frame-bar">
+              <span class="frame-dot red"></span>
+              <span class="frame-dot yellow"></span>
+              <span class="frame-dot green"></span>
+              <span class="frame-title">preview</span>
+              <button id="refreshPreviewBtn" class="mini-btn">↻</button>
+            </div>
+            <iframe id="previewFrame" sandbox="allow-scripts allow-same-origin"></iframe>
           </div>
         </div>
       </div>
-
-      <!-- ========== PREVIEW PANEL ========== -->
-      <div id="preview-panel" class="panel">
-        <div class="preview-toolbar">
-          <span class="preview-label">Live Preview</span>
-          <div class="preview-actions">
-            <button id="refreshPreviewBtn" class="btn btn-sm" title="Refresh">↻</button>
-            <a id="openNewTab" href="#" target="_blank" class="btn btn-sm" title="Open in new tab">↗</a>
-          </div>
-        </div>
-        <div class="preview-container">
-          <iframe id="previewFrame" sandbox="allow-scripts allow-same-origin"></iframe>
-        </div>
-      </div>
-    </div>
+    </main>
   </div>
 
   <div id="toast"></div>
-
+  <div id="cursorGlow"></div>
   <script src="script.js"></script>
 </body>
 </html>
