@@ -224,7 +224,7 @@
     const github = p.github || '';
     const linkedin = p.linkedin || '';
 
-    const lampHTML = t === 'frosted' ? `<div class="lamp"><div class="lamp-post"></div><div class="lamp-head"><div class="lamp-bulb"></div></div><div class="lamp-beam"></div></div>` : '';
+    const lampHTML = `<div class="lamp"><div class="lamp-arm"></div><div class="lamp-head"><div class="lamp-bulb"></div></div><div class="lamp-beam"></div></div>`;
 
     return `<!DOCTYPE html><html lang="en"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
@@ -286,11 +286,11 @@ ${lampHTML}
   function getThemeStyles(theme) {
     const base = `
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased;position:relative}
 h1,h2,h3{line-height:1.3}
 a{text-decoration:none}
 img{max-width:100%;display:block}
-.container{max-width:800px;margin:0 auto;padding:40px 24px}
+.container{max-width:800px;margin:0 auto;padding:40px 24px;position:relative;z-index:3}
 section{margin-bottom:36px}
 section h2{font-size:20px;margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid;display:inline-block}
 .hero{text-align:center;margin-bottom:48px;padding-bottom:40px}
@@ -315,6 +315,12 @@ section h2{font-size:20px;margin-bottom:16px;padding-bottom:8px;border-bottom:2p
 .exp-period{font-size:13px;margin:2px 0 4px;opacity:.7}
 .exp-desc{font-size:14px}
 footer{text-align:center;font-size:13px;opacity:.6;padding-top:20px;margin-top:40px}
+.lamp{position:absolute;top:20px;right:0;z-index:5;pointer-events:none}
+.lamp-arm{position:absolute;top:8px;right:0;width:70px;height:3px;background:#888;border-radius:2px;transform-origin:right center}
+.lamp-arm::before{content:'';position:absolute;right:-2px;top:-6px;width:3px;height:8px;background:#777;border-radius:1px}
+.lamp-head{position:absolute;top:-2px;right:66px;width:18px;height:12px;background:linear-gradient(180deg,#777,#888);border-radius:2px 2px 4px 4px}
+.lamp-bulb{position:absolute;bottom:-4px;left:50%;transform:translateX(-50%);width:6px;height:6px;background:#ffe066;border-radius:50%;box-shadow:0 0 8px #ffe066,0 0 20px rgba(255,200,50,.3)}
+.lamp-beam{position:absolute;top:18px;right:10px;width:450px;height:550px;background:radial-gradient(ellipse at top right,rgba(255,210,80,.08) 0%,rgba(255,210,80,.02) 40%,transparent 70%);transform-origin:top right;pointer-events:none}
 `;
     switch (theme) {
       case 'dark':
@@ -353,13 +359,7 @@ footer{border-top:1px solid rgba(255,255,255,.1)}
       case 'frosted':
         return base + `
 body{background:linear-gradient(135deg,#0a0a1a 0%,#1a1a2e 50%,#0d0d24 100%);color:rgba(255,255,255,.85);min-height:100vh}
-.lamp{position:relative;display:flex;flex-direction:column;align-items:center;padding-top:20px;z-index:1}
-.lamp-post{width:4px;height:60px;background:linear-gradient(90deg,#444,#777,#444);border-radius:2px;position:relative}
-.lamp-post::before{content:'';position:absolute;top:0;left:-6px;width:16px;height:5px;background:#555;border-radius:2px}
-.lamp-head{width:24px;height:16px;background:linear-gradient(180deg,#444,#555);border-radius:3px 3px 6px 6px;margin-top:-1px;position:relative;z-index:2}
-.lamp-bulb{position:absolute;bottom:-5px;left:50%;transform:translateX(-50%);width:8px;height:8px;background:#ffe066;border-radius:50%;box-shadow:0 0 10px #ffe066,0 0 30px rgba(255,200,50,.3)}
-.lamp-beam{position:absolute;top:85px;left:50%;transform:translateX(-50%);width:500px;height:350px;background:radial-gradient(ellipse at top,rgba(255,210,80,.07) 0%,rgba(255,210,80,.02) 40%,transparent 70%);pointer-events:none}
-.container{background:rgba(255,255,255,.04);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);border-radius:20px;border:1px solid rgba(255,255,255,.06);margin-top:24px;margin-bottom:24px;padding:40px 32px;box-shadow:0 8px 40px rgba(0,0,0,.3),0 0 100px rgba(255,210,80,.06);position:relative;z-index:3}
+.container{background:rgba(255,255,255,.04);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);border-radius:20px;border:1px solid rgba(255,255,255,.06);margin-top:24px;margin-bottom:24px;padding:40px 32px;box-shadow:0 8px 40px rgba(0,0,0,.3)}
 section h2{border-color:rgba(255,255,255,.1);color:rgba(255,255,255,.7);font-weight:400;letter-spacing:1px}
 .hero{border-bottom:1px solid rgba(255,255,255,.05)}
 .profile-avatar{background:rgba(255,255,255,.06);color:#fff;backdrop-filter:blur(7px);border:1px solid rgba(255,255,255,.08)}
