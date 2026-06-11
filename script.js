@@ -3,7 +3,7 @@
 
   // ---- STATE ----
   const state = {
-    theme: 'classic',
+    theme: 'frosted',
     personal: {},
     skills: ['JavaScript', 'React', 'Node.js', 'Python', 'TypeScript'],
     projects: [
@@ -11,11 +11,11 @@
       { title: 'Weather Dashboard', desc: 'Real-time weather visualization using OpenWeather API and D3.js', tech: 'D3.js, API, Vanilla JS', live: '#', github: '#' },
     ],
     experience: [
-      { company: 'TechCorp', role: 'Senior Developer', period: '2022GÇôPresent', desc: 'Led frontend architecture for SaaS platform serving 50k+ users' },
-      { company: 'StartupX', role: 'Full-Stack Developer', period: '2020GÇô2022', desc: 'Built and shipped MVP within 3 months using React and Node.js' },
+      { company: 'TechCorp', role: 'Senior Developer', period: '2022Gï¿½ï¿½Present', desc: 'Led frontend architecture for SaaS platform serving 50k+ users' },
+      { company: 'StartupX', role: 'Full-Stack Developer', period: '2020Gï¿½ï¿½2022', desc: 'Built and shipped MVP within 3 months using React and Node.js' },
     ],
     education: [
-      { institution: 'MIT', degree: 'B.S. Computer Science', period: '2016GÇô2020' },
+      { institution: 'MIT', degree: 'B.S. Computer Science', period: '2016Gï¿½ï¿½2020' },
     ],
   };
 
@@ -151,7 +151,7 @@
 
   function renderProjectCard(item, i) {
     return `<div class="item-card">
-      <div class="item-header"><span class="item-title">Project ${i+1}</span><div class="item-actions"><button class="item-del" data-idx="${i}">G£ò</button></div></div>
+      <div class="item-header"><span class="item-title">Project ${i+1}</span><div class="item-actions"><button class="item-del" data-idx="${i}">Gï¿½ï¿½</button></div></div>
       <div class="item-fields">
         <div class="field"><input class="item-field" data-idx="${i}" data-key="title" value="${esc(item.title)}" placeholder="Project name"></div>
         <div class="field"><input class="item-field" data-idx="${i}" data-key="tech" value="${esc(item.tech)}" placeholder="Tech stack"></div>
@@ -164,7 +164,7 @@
 
   function renderExpCard(item, i) {
     return `<div class="item-card">
-      <div class="item-header"><span class="item-title">Experience ${i+1}</span><div class="item-actions"><button class="item-del" data-idx="${i}">G£ò</button></div></div>
+      <div class="item-header"><span class="item-title">Experience ${i+1}</span><div class="item-actions"><button class="item-del" data-idx="${i}">Gï¿½ï¿½</button></div></div>
       <div class="item-fields">
         <div class="field"><input class="item-field" data-idx="${i}" data-key="company" value="${esc(item.company)}" placeholder="Company"></div>
         <div class="field"><input class="item-field" data-idx="${i}" data-key="role" value="${esc(item.role)}" placeholder="Role"></div>
@@ -176,7 +176,7 @@
 
   function renderEduCard(item, i) {
     return `<div class="item-card">
-      <div class="item-header"><span class="item-title">Education ${i+1}</span><div class="item-actions"><button class="item-del" data-idx="${i}">G£ò</button></div></div>
+      <div class="item-header"><span class="item-title">Education ${i+1}</span><div class="item-actions"><button class="item-del" data-idx="${i}">Gï¿½ï¿½</button></div></div>
       <div class="item-fields">
         <div class="field"><input class="item-field" data-idx="${i}" data-key="institution" value="${esc(item.institution)}" placeholder="Institution"></div>
         <div class="field"><input class="item-field" data-idx="${i}" data-key="degree" value="${esc(item.degree)}" placeholder="Degree"></div>
@@ -224,7 +224,7 @@
 
     return `<!DOCTYPE html><html lang="en"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>${esc(name)} GÇö Portfolio</title>
+<title>${esc(name)} Gï¿½ï¿½ Portfolio</title>
 <style>${themeStyles}</style>
 </head><body>
 <div class="container">
@@ -258,7 +258,7 @@
 
   ${exp.length ? `<section><h2>Experience</h2>${exp.filter(e => e.company).map(e => `
     <div class="exp-item">
-      <div class="exp-header"><strong>${esc(e.company)}</strong> ${e.role ? `GÇö ${esc(e.role)}` : ''}</div>
+      <div class="exp-header"><strong>${esc(e.company)}</strong> ${e.role ? `Gï¿½ï¿½ ${esc(e.role)}` : ''}</div>
       ${e.period ? `<div class="exp-period">${esc(e.period)}</div>` : ''}
       ${e.desc ? `<p class="exp-desc">${esc(e.desc)}</p>` : ''}
     </div>
@@ -266,7 +266,7 @@
 
   ${edu.length ? `<section><h2>Education</h2>${edu.filter(e => e.institution).map(e => `
     <div class="exp-item">
-      <div class="exp-header"><strong>${esc(e.institution)}</strong> ${e.degree ? `GÇö ${esc(e.degree)}` : ''}</div>
+      <div class="exp-header"><strong>${esc(e.institution)}</strong> ${e.degree ? `Gï¿½ï¿½ ${esc(e.degree)}` : ''}</div>
       ${e.period ? `<div class="exp-period">${esc(e.period)}</div>` : ''}
     </div>
   `).join('')}</section>` : ''}
@@ -346,7 +346,7 @@ section h2{border-color:rgba(255,255,255,.4);color:#fff}
 footer{border-top:1px solid rgba(255,255,255,.1)}
 `;
       case 'frosted':
-        return base + 
+        return base + `
 body{background:linear-gradient(135deg,#0a0a1a 0%,#1a1a2e 50%,#0d0d24 100%);color:rgba(255,255,255,.85);min-height:100vh}
 .container{background:rgba(255,255,255,.04);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);border-radius:20px;border:1px solid rgba(255,255,255,.06);margin-top:24px;margin-bottom:24px;padding:40px 32px;box-shadow:0 8px 40px rgba(0,0,0,.3)}
 section h2{border-color:rgba(255,255,255,.1);color:rgba(255,255,255,.7);font-weight:400;letter-spacing:1px}
@@ -363,7 +363,7 @@ section h2{border-color:rgba(255,255,255,.1);color:rgba(255,255,255,.7);font-wei
 .project-links a:hover{color:#fff}
 .exp-item{border-bottom:1px solid rgba(255,255,255,.05)}
 footer{border-top:1px solid rgba(255,255,255,.05);color:rgba(255,255,255,.25)}
-;
+`;
       case 'minimal':
         return base + `
 body{background:#fff;color:#333}
