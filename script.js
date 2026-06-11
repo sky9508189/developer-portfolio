@@ -224,11 +224,14 @@
     const github = p.github || '';
     const linkedin = p.linkedin || '';
 
+    const lampHTML = t === 'frosted' ? `<div class="lamp"><div class="lamp-post"></div><div class="lamp-head"><div class="lamp-bulb"></div></div><div class="lamp-beam"></div></div>` : '';
+
     return `<!DOCTYPE html><html lang="en"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>${esc(name)} G�� Portfolio</title>
 <style>${themeStyles}</style>
 </head><body>
+${lampHTML}
 <div class="container">
   <header class="hero">
     ${photoHTML}
@@ -350,7 +353,13 @@ footer{border-top:1px solid rgba(255,255,255,.1)}
       case 'frosted':
         return base + `
 body{background:linear-gradient(135deg,#0a0a1a 0%,#1a1a2e 50%,#0d0d24 100%);color:rgba(255,255,255,.85);min-height:100vh}
-.container{background:rgba(255,255,255,.04);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);border-radius:20px;border:1px solid rgba(255,255,255,.06);margin-top:24px;margin-bottom:24px;padding:40px 32px;box-shadow:0 8px 40px rgba(0,0,0,.3)}
+.lamp{position:relative;display:flex;flex-direction:column;align-items:center;padding-top:20px;z-index:1}
+.lamp-post{width:4px;height:60px;background:linear-gradient(90deg,#444,#777,#444);border-radius:2px;position:relative}
+.lamp-post::before{content:'';position:absolute;top:0;left:-6px;width:16px;height:5px;background:#555;border-radius:2px}
+.lamp-head{width:24px;height:16px;background:linear-gradient(180deg,#444,#555);border-radius:3px 3px 6px 6px;margin-top:-1px;position:relative;z-index:2}
+.lamp-bulb{position:absolute;bottom:-5px;left:50%;transform:translateX(-50%);width:8px;height:8px;background:#ffe066;border-radius:50%;box-shadow:0 0 10px #ffe066,0 0 30px rgba(255,200,50,.3)}
+.lamp-beam{position:absolute;top:85px;left:50%;transform:translateX(-50%);width:500px;height:350px;background:radial-gradient(ellipse at top,rgba(255,210,80,.07) 0%,rgba(255,210,80,.02) 40%,transparent 70%);pointer-events:none}
+.container{background:rgba(255,255,255,.04);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);border-radius:20px;border:1px solid rgba(255,255,255,.06);margin-top:24px;margin-bottom:24px;padding:40px 32px;box-shadow:0 8px 40px rgba(0,0,0,.3),0 0 100px rgba(255,210,80,.06);position:relative;z-index:3}
 section h2{border-color:rgba(255,255,255,.1);color:rgba(255,255,255,.7);font-weight:400;letter-spacing:1px}
 .hero{border-bottom:1px solid rgba(255,255,255,.05)}
 .profile-avatar{background:rgba(255,255,255,.06);color:#fff;backdrop-filter:blur(7px);border:1px solid rgba(255,255,255,.08)}
