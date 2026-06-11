@@ -32,8 +32,10 @@
     bindSkills();
     bindDynamicLists();
     bindExport();
+    bindExportPDF();
     bindReset();
     bindRefreshPreview();
+    bindBubbleScroll();
     schedulePreview();
   }
 
@@ -424,6 +426,47 @@ footer{border-top:1px solid #e2e0dc}
     showToast('Portfolio exported!');
   }
 
+  // ---- PDF EXPORT ----
+  function bindExportPDF() {
+    const btn = $('exportPdfBtn');
+    if (!btn) return;
+    btn.addEventListener('click', exportPDF);
+  }
+
+  function exportPDF() {
+    const html = generateHTML(state.theme);
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'fixed';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = 'none';
+    document.body.appendChild(iframe);
+    iframe.src = url;
+    const name = (state.personal.name || 'portfolio').replace(/\s+/g, '_').toLowerCase();
+    iframe.onload = () => {
+      try {
+        const opt = {
+          margin: [0.5, 0.5, 0.5, 0.5],
+          filename: name + '_portfolio.pdf',
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+          jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+        };
+        html2pdf().set(opt).from(iframe.contentDocument.body).save().then(() => {
+          document.body.removeChild(iframe);
+          URL.revokeObjectURL(url);
+          showToast('PDF exported!');
+        });
+      } catch (e) {
+        document.body.removeChild(iframe);
+        URL.revokeObjectURL(url);
+        showToast('PDF export failed');
+      }
+    };
+  }
+
   // ---- RESET ----
   function bindReset() {
     $('resetBtn').addEventListener('click', () => {
@@ -460,6 +503,20 @@ footer{border-top:1px solid #e2e0dc}
     const blob = new Blob([html], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
     $('openNewTab').href = url;
+  }
+
+  // ---- BUBBLE SCROLL (iOS pop on scroll) ----
+  function bindBubbleScroll() {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('bubble-in');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -20px 0px' });
+    const els = document.querySelectorAll('.form-section');
+    els.forEach(el => observer.observe(el));
   }
 
   // ---- TOAST ----
