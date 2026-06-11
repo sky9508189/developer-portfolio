@@ -444,36 +444,31 @@ footer{border-top:1px solid #e2e0dc}
 
   function exportPDF() {
     const html = generateHTML(state.theme);
-    const blob = new Blob([html], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    const iframe = document.createElement('iframe');
-    iframe.style.position = 'fixed';
-    iframe.style.width = '0';
-    iframe.style.height = '0';
-    iframe.style.border = 'none';
-    document.body.appendChild(iframe);
-    iframe.src = url;
     const name = (state.personal.name || 'portfolio').replace(/\s+/g, '_').toLowerCase();
-    iframe.onload = () => {
-      try {
-        const opt = {
-          margin: [0.5, 0.5, 0.5, 0.5],
-          filename: name + '_portfolio.pdf',
-          image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: { scale: 2, useCORS: true, letterRendering: true },
-          jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-        };
-        html2pdf().set(opt).from(iframe.contentDocument.body).save().then(() => {
-          document.body.removeChild(iframe);
-          URL.revokeObjectURL(url);
-          showToast('PDF exported!');
-        });
-      } catch (e) {
-        document.body.removeChild(iframe);
-        URL.revokeObjectURL(url);
+    const container = document.createElement('div');
+    container.innerHTML = html;
+    container.style.position = 'fixed';
+    container.style.left = '-9999px';
+    container.style.top = '0';
+    container.style.width = '800px';
+    document.body.appendChild(container);
+    showToast('Generating PDF...');
+    setTimeout(() => {
+      const opt = {
+        margin: [0.5, 0.5, 0.5, 0.5],
+        filename: name + '_portfolio.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, letterRendering: true, logging: false },
+        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+      };
+      html2pdf().set(opt).from(container).save().then(() => {
+        document.body.removeChild(container);
+        showToast('PDF exported!');
+      }).catch(() => {
+        document.body.removeChild(container);
         showToast('PDF export failed');
-      }
-    };
+      });
+    }, 500);
   }
 
   // ---- RESET ----
